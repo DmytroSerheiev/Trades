@@ -10,9 +10,16 @@ import { usePairTokensContext } from '@/context/pairTokensContext';
 import { useOrderBookTradesContext } from '@/context/orderBookTradesContext';
 import { SizeEquivalentsProps } from '@/utils/usdEquivalents';
 
+enum Pair {
+  USD = "USD",
+  ETH = "ETH",
+  BTC = "BTC"
+}
+
 interface OrderBookProps {
   spread: number;
   pair: string;
+  pair: Pair;
   setSpread: (spread: number) => void;
   setPair: (pair: string) => void;
 }
@@ -21,10 +28,16 @@ const calculateBarWidth = (total: number, max: number) => {
   return (total / max) * 100;
 };
 
+interface Order {
+  sz: number;
+  px: number;
+}
+
+
 export const getUsdEquivalentOnly = ({
   size,
   currentMarkPrice,
-  token,s
+  token,
 }: SizeEquivalentsProps) => {
   if (token.toUpperCase() === 'USD') {
     return Math.trunc(size * currentMarkPrice);
@@ -33,27 +46,46 @@ export const getUsdEquivalentOnly = ({
   }
 };
 
-const calculateTotal = (orders, pair, reverse = false) => {
+
+const calculateTotal = (orders: Order[], pair: Pair, reverse: boolean = false) => {
   let cumulativeTotal = 0;
   const ordersCopy = reverse ? [...orders].reverse() : [...orders];
   const ordersWithTotal = ordersCopy.map(order => {
-    const orderSize = Number(order.sz);
-    const orderPx = Number(order.px);
-    const sizeEquivalent = pair.toUpperCase() === 'USD'
+    const orderSize = order.sz;
+    const orderPx = order.px;
+    let sizeEquivalent = pair.toUpperCase() === 'USD'
       ? getUsdEquivalentOnly({ size: orderSize, currentMarkPrice: orderPx, token: pair })
       : orderSize;
 
+    // Переконайтеся, що sizeEquivalent є числом
+    sizeEquivalent = Number(sizeEquivalent);
+
+    if (isNaN(sizeEquivalent)) {
+      throw new TypeError(`sizeEquivalent має бути числом, але отримано ${typeof sizeEquivalent} зі значенням ${sizeEquivalent}`);
+    }
+
     cumulativeTotal += sizeEquivalent;
+
+    console.log('Тип cumulativeTotal:', typeof cumulativeTotal, 'Значення:', cumulativeTotal);
+
+    if (typeof cumulativeTotal !== 'number' || isNaN(cumulativeTotal)) {
+      throw new TypeError(`cumulativeTotal має бути числом, але отримано ${typeof cumulativeTotal} зі значенням ${cumulativeTotal}`);
+    }
+
     const roundedTotal = Number(cumulativeTotal.toFixed(2));
     return { ...order, total: roundedTotal };
   });
   return reverse ? ordersWithTotal.reverse() : ordersWithTotal;
 };
 
+
+
+
+
 const renderOrderBookTable = (
   orders: { px: number; sz: number; n: number }[],
   type: string,
-  pair: string,
+  pair: Pair,
   reverseTotal: boolean
 ) => {
   const ordersWithTotal = calculateTotal(orders, pair, reverseTotal);
@@ -88,12 +120,12 @@ const renderOrderBookTable = (
   );
 };
 
-const calculateSpreadPercentage = (asks, bids) => {
+const calculateSpreadPercentage = (asks: Order[], bids: Order[]) => {
   if (asks.length === 0 || bids.length === 0) return 0;
   const highestBid = bids[0].px;
   const lowestAsk = asks[0].px;
   const spread = lowestAsk - highestBid;
-  const spreadPercentage = ((spread / lowestAsk) * 100).toFixed(2);
+  const spreadPercentage = parseFloat(((spread / lowestAsk) * 100).toFixed(2)); 
   return spreadPercentage;
 };
 

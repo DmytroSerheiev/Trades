@@ -1,0 +1,62 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Sora:wght@100..800&display=swap');
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+body {
+  color: #ffffff;
+  background: #000000;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border: 1px solid #f1f1f1;
+}
+
+input[type='radio'] {
+  width: 12px;
+  height: 12px;
+  -webkit-appearance: none;
+  outline: 2px solid #fff;
+  outline-offset: 1px;
+  cursor: pointer;
+  /* border-radius: 1px; */
+}
+
+input[type='radio']:checked {
+  display: inline-block;
+  background-color: #fff;
+}
+
+/* Webkit-based browsers (Chrome, Safari) */
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
+  opacity: 0; /* Hide them visually */
+  -webkit-appearance: none; /* Remove default styling */
+}
+
+/* Firefox */
+input[type='number'] {
+  -moz-appearance: textfield; /* Display as text field */
+}

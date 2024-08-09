@@ -24,7 +24,7 @@ const calculateBarWidth = (total: number, max: number) => {
 export const getUsdEquivalentOnly = ({
   size,
   currentMarkPrice,
-  token,
+  token,s
 }: SizeEquivalentsProps) => {
   if (token.toUpperCase() === 'USD') {
     return Math.trunc(size * currentMarkPrice);

@@ -1,0 +1,48 @@
+{
+  "name": "pnl.green",
+  "version": "0.1.0",
+  "private": true,
+  "author": {
+    "name": "Samuel",
+    "email": "samuel@ngeni.io"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "prettier": {
+    "singleQuote": true,
+    "trailingComma": "es5",
+    "semi": true
+  },
+  "dependencies": {
+    "@emotion/react": "^11.11.4",
+    "@emotion/styled": "^11.11.5",
+    "@mui/icons-material": "^5.15.15",
+    "@mui/material": "^5.15.15",
+    "@thirdweb-dev/react": "^4.6.1",
+    "@ygoe/msgpack": "^1.0.3",
+    "axios": "^1.6.8",
+    "big.js": "^6.2.1",
+    "ethers": "^5.7.2",
+    "next": "^14.2.1",
+    "next-compose-plugins": "^2.2.1",
+    "next-transpile-modules": "^10.0.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-draggable": "^4.4.6",
+    "react-hot-toast": "^2.4.1",
+    "react-no-ssr": "^1.1.0",
+    "react-tradingview-embed": "^3.0.6"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.7",
+    "@types/react": "^18.2.78",
+    "@types/react-dom": "^18.2.25",
+    "eslint": "^9.0.0",
+    "eslint-config-next": "^14.2.1",
+    "typescript": "^5.4.5"
+  }
+}

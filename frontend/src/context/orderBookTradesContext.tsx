@@ -11,6 +11,12 @@ interface OrderBookTradesProps {
   loadingBookData: boolean;
 }
 
+export interface Order {
+  sz: number,
+  px: number, 
+  n: number
+}
+
 const OrderBookTradesContext = createContext({} as OrderBookTradesProps);
 
 export const useOrderBookTradesContext = () => {
@@ -132,8 +138,18 @@ const OrderBookTradesProvider = ({
 
       if (message.channel === 'l2Book') {
         if (data) {
-          const asks: any[] = data[1];
-          const bids: any[] = data[0];
+          const data_parsed: Array<Order[]> = data.map((ordersArr: Order[]) => 
+            ordersArr.map((order: Order) => {
+              return {
+                px: Number(order.px),
+                sz: Number(order.sz),
+                n: Number(order.n)
+              }
+            })
+          )
+
+          const bids: Order[] = data_parsed[0];
+          const asks: Order[] = data_parsed[1];
 
           setBookData({ asks, bids });
           setLoadingBookData(false);

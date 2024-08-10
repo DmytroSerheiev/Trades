@@ -9,6 +9,7 @@ import HandleSelectItems from '../handleSelectItems';
 import { usePairTokensContext } from '@/context/pairTokensContext';
 import { useOrderBookTradesContext } from '@/context/orderBookTradesContext';
 import { SizeEquivalentsProps } from '@/utils/usdEquivalents';
+import { Order } from '@/context/orderBookTradesContext';
 
 enum Pair {
   USD = "USD",
@@ -16,24 +17,20 @@ enum Pair {
   BTC = "BTC"
 }
 
+// Props for OrderBook component
 interface OrderBookProps {
   spread: number;
-  pair: string;
   pair: Pair;
   setSpread: (spread: number) => void;
-  setPair: (pair: string) => void;
+  setPair: (pair: Pair) => void;
 }
 
+// Calculate bar width as a percentage
 const calculateBarWidth = (total: number, max: number) => {
   return (total / max) * 100;
 };
 
-interface Order {
-  sz: number;
-  px: number;
-}
-
-
+// Get USD value if token is USD
 export const getUsdEquivalentOnly = ({
   size,
   currentMarkPrice,
@@ -46,7 +43,7 @@ export const getUsdEquivalentOnly = ({
   }
 };
 
-
+// Calculate total size for each order
 const calculateTotal = (orders: Order[], pair: Pair, reverse: boolean = false) => {
   let cumulativeTotal = 0;
   const ordersCopy = reverse ? [...orders].reverse() : [...orders];
@@ -57,19 +54,18 @@ const calculateTotal = (orders: Order[], pair: Pair, reverse: boolean = false) =
       ? getUsdEquivalentOnly({ size: orderSize, currentMarkPrice: orderPx, token: pair })
       : orderSize;
 
-    // Переконайтеся, що sizeEquivalent є числом
     sizeEquivalent = Number(sizeEquivalent);
 
     if (isNaN(sizeEquivalent)) {
-      throw new TypeError(`sizeEquivalent має бути числом, але отримано ${typeof sizeEquivalent} зі значенням ${sizeEquivalent}`);
+      throw new TypeError(`sizeEquivalent must be a number, but got ${typeof sizeEquivalent} with value ${sizeEquivalent}`);
     }
 
     cumulativeTotal += sizeEquivalent;
 
-    console.log('Тип cumulativeTotal:', typeof cumulativeTotal, 'Значення:', cumulativeTotal);
+    console.log('Type of cumulativeTotal:', typeof cumulativeTotal, 'Value:', cumulativeTotal);
 
     if (typeof cumulativeTotal !== 'number' || isNaN(cumulativeTotal)) {
-      throw new TypeError(`cumulativeTotal має бути числом, але отримано ${typeof cumulativeTotal} зі значенням ${cumulativeTotal}`);
+      throw new TypeError(`cumulativeTotal must be a number, but got ${typeof cumulativeTotal} with value ${cumulativeTotal}`);
     }
 
     const roundedTotal = Number(cumulativeTotal.toFixed(2));
@@ -78,10 +74,7 @@ const calculateTotal = (orders: Order[], pair: Pair, reverse: boolean = false) =
   return reverse ? ordersWithTotal.reverse() : ordersWithTotal;
 };
 
-
-
-
-
+// Render table rows for orders
 const renderOrderBookTable = (
   orders: { px: number; sz: number; n: number }[],
   type: string,
@@ -120,6 +113,7 @@ const renderOrderBookTable = (
   );
 };
 
+// Calculate spread percentage
 const calculateSpreadPercentage = (asks: Order[], bids: Order[]) => {
   if (asks.length === 0 || bids.length === 0) return 0;
   const highestBid = bids[0].px;
@@ -129,11 +123,13 @@ const calculateSpreadPercentage = (asks: Order[], bids: Order[]) => {
   return spreadPercentage;
 };
 
+// Main component for order book
 const OrderBook = ({ spread, pair, setSpread, setPair }: OrderBookProps) => {
   const { tokenPairs } = usePairTokensContext();
   const { bookData, loadingBookData } = useOrderBookTradesContext();
   const [spreadPercentage, setSpreadPercentage] = React.useState(0);
 
+  // Get asks and bids data
   function getBookData() {
     let limit = 10;
     const asks = bookData.asks
@@ -145,6 +141,7 @@ const OrderBook = ({ spread, pair, setSpread, setPair }: OrderBookProps) => {
     return { asks, bids };
   }
 
+  // Update spread percentage when book data changes
   useEffect(() => {
     if (!loadingBookData) {
       const { asks, bids } = getBookData();

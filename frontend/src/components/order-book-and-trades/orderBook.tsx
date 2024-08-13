@@ -49,24 +49,12 @@ const calculateTotal = (orders: Order[], pair: Pair, reverse: boolean = false) =
   const ordersCopy = reverse ? [...orders].reverse() : [...orders];
   const ordersWithTotal = ordersCopy.map(order => {
     const orderSize = order.sz;
-    const orderPx = order.px;
+    const orderPx = order.px; 
     let sizeEquivalent = pair.toUpperCase() === 'USD'
       ? getUsdEquivalentOnly({ size: orderSize, currentMarkPrice: orderPx, token: pair })
       : orderSize;
 
-    sizeEquivalent = Number(sizeEquivalent);
-
-    if (isNaN(sizeEquivalent)) {
-      throw new TypeError(`sizeEquivalent must be a number, but got ${typeof sizeEquivalent} with value ${sizeEquivalent}`);
-    }
-
     cumulativeTotal += sizeEquivalent;
-
-    console.log('Type of cumulativeTotal:', typeof cumulativeTotal, 'Value:', cumulativeTotal);
-
-    if (typeof cumulativeTotal !== 'number' || isNaN(cumulativeTotal)) {
-      throw new TypeError(`cumulativeTotal must be a number, but got ${typeof cumulativeTotal} with value ${cumulativeTotal}`);
-    }
 
     const roundedTotal = Number(cumulativeTotal.toFixed(2));
     return { ...order, total: roundedTotal };
@@ -92,19 +80,19 @@ const renderOrderBookTable = (
           type={type}
           width={calculateBarWidth(order.total, maxOrderTotal)}
         >
-          <td className="first-column">{Number(order.px).toFixed(2)}</td>
+          <td className="first-column">{order.px.toFixed(2)}</td>
           <td>
             {pair.toUpperCase() === 'USD'
               ? Math.trunc(getUsdEquivalentOnly({
-                  size: Number(order.sz),
-                  currentMarkPrice: Number(order.px),
+                  size: order.sz,
+                  currentMarkPrice: order.px,
                   token: pair,
                 }))
-              : Number(getUsdEquivalentOnly({
-                  size: Number(order.sz),
-                  currentMarkPrice: Number(order.px),
+              : getUsdEquivalentOnly({
+                  size: order.sz,
+                  currentMarkPrice: order.px,
                   token: pair,
-                })).toFixed(2)}
+                }).toFixed(2)}
           </td>
           <td>{pair.toUpperCase() === 'USD' ? Math.trunc(order.total) : order.total}</td>
         </Tablerows>
@@ -117,9 +105,9 @@ const renderOrderBookTable = (
 const calculateSpreadPercentage = (asks: Order[], bids: Order[]) => {
   if (asks.length === 0 || bids.length === 0) return 0;
   const highestBid = bids[0].px;
-  const lowestAsk = asks[0].px;
+  const lowestAsk = asks[asks.length-1].px
   const spread = lowestAsk - highestBid;
-  const spreadPercentage = parseFloat(((spread / lowestAsk) * 100).toFixed(2)); 
+  const spreadPercentage = parseFloat(((spread / lowestAsk ) * 100).toFixed(2)); 
   return spreadPercentage;
 };
 
@@ -130,6 +118,8 @@ const OrderBook = ({ spread, pair, setSpread, setPair }: OrderBookProps) => {
   const [spreadPercentage, setSpreadPercentage] = React.useState(0);
 
   // Get asks and bids data
+  //
+  // @TODO investigate how sort orders with step: 1/2/5/10/100/1000
   function getBookData() {
     let limit = 10;
     const asks = bookData.asks
@@ -137,7 +127,7 @@ const OrderBook = ({ spread, pair, setSpread, setPair }: OrderBookProps) => {
       .sort((a, b) => b.px - a.px);
     const bids = bookData.bids
       .slice(0, limit)
-      .sort((a, b) => b.px - a.px);
+    .sort((a, b) => b.px - a.px);
     return { asks, bids };
   }
 
